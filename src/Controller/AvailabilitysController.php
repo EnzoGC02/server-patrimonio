@@ -4,12 +4,12 @@ namespace App\Controller;
 use App\Controller\AppController;
 
 /**
- * Availability Controller
+ * Availabilitys Controller
  *
  *
  * @method \App\Model\Entity\Availability[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
  */
-class AvailabilityController extends AppController
+class AvailabilitysController extends AppController
 {
     /**
      * Index method
@@ -18,9 +18,12 @@ class AvailabilityController extends AppController
      */
     public function index()
     {
-        $availability = $this->paginate($this->Availability);
 
-        $this->set(compact('availability'));
+        $availabilitys = $this->Availabilitys->find('all')->contain(['Elements']);
+        $this->set([
+            'availabilitys'=>$availabilitys,
+            '_serialize'=>[$availabilitys]
+            ]);
     }
 
     /**
@@ -32,7 +35,7 @@ class AvailabilityController extends AppController
      */
     public function view($id = null)
     {
-        $availability = $this->Availability->get($id, [
+        $availability = $this->Availabilitys->get($id, [
             'contain' => []
         ]);
 
@@ -46,10 +49,10 @@ class AvailabilityController extends AppController
      */
     public function add()
     {
-        $availability = $this->Availability->newEntity();
+        $availability = $this->Availabilitys->newEntity();
         if ($this->request->is('post')) {
-            $availability = $this->Availability->patchEntity($availability, $this->request->getData());
-            if ($this->Availability->save($availability)) {
+            $availability = $this->Availabilitys->patchEntity($availability, $this->request->getData());
+            if ($this->Availabilitys->save($availability)) {
                 $this->Flash->success(__('The availability has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,12 +71,12 @@ class AvailabilityController extends AppController
      */
     public function edit($id = null)
     {
-        $availability = $this->Availability->get($id, [
+        $availability = $this->Availabilitys->get($id, [
             'contain' => []
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $availability = $this->Availability->patchEntity($availability, $this->request->getData());
-            if ($this->Availability->save($availability)) {
+            $availability = $this->Availabilitys->patchEntity($availability, $this->request->getData());
+            if ($this->Availabilitys->save($availability)) {
                 $this->Flash->success(__('The availability has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -93,8 +96,8 @@ class AvailabilityController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $availability = $this->Availability->get($id);
-        if ($this->Availability->delete($availability)) {
+        $availability = $this->Availabilitys->get($id);
+        if ($this->Availabilitys->delete($availability)) {
             $this->Flash->success(__('The availability has been deleted.'));
         } else {
             $this->Flash->error(__('The availability could not be deleted. Please, try again.'));

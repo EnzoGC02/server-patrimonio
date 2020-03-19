@@ -40,6 +40,9 @@ class ElementsTable extends Table
             'foreignKey'=>'category_id',
             'joinType' => 'INNER'
         ]);
+        
+
+       // $this->belongsToMany('Availabilitys');
     }
 
     /**
@@ -56,20 +59,19 @@ class ElementsTable extends Table
 
         $validator
             ->scalar('name_element')
-            ->maxLength('name_element', 100)
+            ->maxLength('name_element', 50)
             ->requirePresence('name_element', 'create')
             ->notEmptyString('name_element');
 
         $validator
             ->scalar('description')
             ->maxLength('description', 100)
-            ->requirePresence('description', 'create')
-            ->notEmptyString('description');
+            ->allowEmptyString('description');
 
         $validator
             ->integer('quantity')
-            ->requirePresence('quantity', 'create')
-            ->notEmptyString('quantity');
+            ->allowEmptyString('quantity');
+
 
         return $validator;
     }

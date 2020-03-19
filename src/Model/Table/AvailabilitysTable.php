@@ -7,9 +7,10 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Availability Model
+ * Availabilitys Model
  *
- * @property \App\Model\Table\ElementsTable&\Cake\ORM\Association\BelongsToMany $Elements
+ * @property \App\Model\Table\ElementsAvailabilityTable&\Cake\ORM\Association\HasMany $ElementsAvailability
+ * @property \App\Model\Table\OutputsTable&\Cake\ORM\Association\HasMany $Outputs
  *
  * @method \App\Model\Entity\Availability get($primaryKey, $options = [])
  * @method \App\Model\Entity\Availability newEntity($data = null, array $options = [])
@@ -20,7 +21,7 @@ use Cake\Validation\Validator;
  * @method \App\Model\Entity\Availability[] patchEntities($entities, array $data, array $options = [])
  * @method \App\Model\Entity\Availability findOrCreate($search, callable $callback = null, $options = [])
  */
-class AvailabilityTable extends Table
+class AvailabilitysTable extends Table
 {
     /**
      * Initialize method
@@ -32,15 +33,17 @@ class AvailabilityTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('availability');
+        $this->setTable('availabilitys');
         $this->setDisplayField('id_availability');
         $this->setPrimaryKey('id_availability');
 
-        $this->belongsToMany('Elements', [
-            'foreignKey' => 'availability_id',
-            'targetForeignKey' => 'element_id',
-            'joinTable' => 'elements_availability'
+
+        $this->hasMany('Outputs', [
+            'foreignKey' => 'availability_id'
         ]);
+
+        $this->belongsToMany('Elements',['joinTable'=>'elements_availability']);
+
     }
 
     /**

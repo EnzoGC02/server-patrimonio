@@ -45,14 +45,19 @@ use Cake\Routing\Route\DashedRoute;
  */
 Router::defaultRouteClass(DashedRoute::class);
 
-Router::scope('/', function (RouteBuilder $routes) {
+Router::scope('/api', function (RouteBuilder $routes) {
     // Register scoped middleware for in scopes.
-    $routes->registerMiddleware('csrf', new CsrfProtectionMiddleware([
-        'httpOnly' => true
-    ]));
-    $routes->setExtensions(['json', 'xml']);
-    $routes->resources('CategorysOfElement');
+    // $routes->registerMiddleware('csrf', new CsrfProtectionMiddleware([
+    //     'httpOnly' => true
+    // ]));
+    $routes->registerMiddleware('bodyParser', new \Cake\Http\Middleware\BodyParserMiddleware());
+    $routes->applyMiddleware('bodyParser');
+
+
+    $routes->setExtensions(['json']);
     $routes->resources('Elements');
+    $routes->resources('TypesBenefitsOfUse');
+    // $routes->resources('CategorysOfElement');
 
 
     /**

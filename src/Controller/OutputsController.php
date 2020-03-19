@@ -53,17 +53,13 @@ class OutputsController extends AppController
      */
     public function add()
     {
-        $Elements=TableRegistry::get('Elements');
+        $this->loadModel('Elements');
+        //$Elements=TableRegistry::get('Elements');
         $output = $this->Outputs->newEntity();
-        if ($this->request->is('post')) {
+        if ($this->request->is('post')){
             $output = $this->Outputs->patchEntity($output, $this->request->getData());
             if ($this->Outputs->save($output)) {
                 $message="Exito";
-                $query=$Elements->query();
-                $query->update()
-                       ->set(['quantity'=>'50'])
-                       ->where(['id_element'=>$output->element_id])
-                       ->execute();
             }
             else $message="Error";
         }

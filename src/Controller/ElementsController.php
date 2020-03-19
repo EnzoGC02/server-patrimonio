@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use App\Controller\Query;
 use Cake\Datasource\ConnectionManager;
 
 /**
@@ -18,18 +19,12 @@ class ElementsController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
+
     public function index()
     {
-        $bd = ConnectionManager::get('default');
-        
-        $query="SELECT id_element, name_element,description,quantity,category_id,name_category,id_benefit,name_benefit
-                FROM elements
-                JOIN categorys_of_element on category_id=id_category
-                JOIN types_benefits_of_use ON id_benefit=id_type_benefit_of_use";
-        
-        $elements=$bd->query($query)->fetchAll('assoc');
+        $Elements = $this->Elements->find('all')->contain(['CategorysOfElement.TypesBenefitsOfUse']);
         $this->set([
-            'elements' => $elements,
+            'elements' => $Elements,
             '_serialize' => ['elements']
         ]);
     }
@@ -42,45 +37,71 @@ class ElementsController extends AppController
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
 
-    public function view ($id=null){
-        
-        $element=$this->Elements->get($id);
+    public function view($id = null)
+    {
+
+        $element = $this->Elements->get($id, ['contain' => ['CategorysOfElement.TypesBenefitsOfUse']]);
+
         $this->set([
-            'element'=>$element,
-            '_serialize'=>['element']
+            'element' => $element,
+            '_serialize' => ['element']
         ]);
     }
     public function getElementsForTypeBenefit($id = null)
     {
+        // $elements = $this->Elements->get($id, ['contain' => ['CategorysOfElement.TypesBenefitsOfUse']])->where('');
         $bd = ConnectionManager::get('default');
-        $query="SELECT id_element, name_element,description,quantity,category_id,name_category,id_benefit,name_benefit
+        $query = "SELECT id_element, name_element,description,quantity,category_id,name_category,id_benefit,name_benefit
                 FROM elements
                 JOIN categorys_of_element on category_id=id_category
                 JOIN types_benefits_of_use ON id_benefit=id_type_benefit_of_use
                 WHERE id_benefit={$id}";
-        
-        $elements=$bd->query($query)->fetchAll('assoc');
+
+        $elements = $bd->query($query)->fetchAll('assoc');
         $this->set([
             'elements' => $elements,
             '_serialize' => ['elements']
         ]);
-
     }
-    public function getAvailibityOfElement($id_elem=null){
-       
-        $bd = ConnectionManager::get('default');
-        $query="SELECT availability_id, id_element,name_availability FROM elements
-                JOIN elements_availability ON id_element=element_id
-                JOIN availability on availability_id=id_availability
-                WHERE id_element={$id_elem}";
-        $availabitys=$bd->query($query)->fetchAll('assoc');
+    public function getElementsForTypeBenefitt($id = null)
+    {
+        $id_benefit = $id;
+
+        $elements = $this->Elements->find('all')->contain(
+            [
+                'CategorysOfElement.TypesBenefitsOfUse' =>
+                function (Query $q) use ($id_benefit) {
+                    return $q->where(['TypesBenefitsOfUse.id_type_benefit_of_use' => $id_benefit]);
+                }
+            ]
+
+        );
+
         $this->set([
-            'availabitys'=>$availabitys,
-            '_serialize'=>['availabitys']
+            'elements' => $elements,
+            '_serialize' => ['elements']
         ]);
-
     }
-    
+
+
+
+
+
+    public function getAvailibityOfElement($id_elem = null)
+    {
+
+        $bd = ConnectionManager::get('default');
+        $query = "SELECT availability_id, id_element,name_availability FROM elements
+                JOIN elements_availability ON id_element=element_id
+                JOIN availabilitys on availability_id=id_availability
+                WHERE id_element={$id_elem}";
+        $availabitys = $bd->query($query)->fetchAll('assoc');
+        $this->set([
+            'availabitys' => $availabitys,
+            '_serialize' => ['availabitys']
+        ]);
+    }
+
 
     /**
      * Add method
@@ -91,13 +112,15 @@ class ElementsController extends AppController
     {
         $element = $this->Elements->newEntity($this->request->getData());
         $res = $this->Elements->save($element);
-        if ($res) {
-            $message = 'saved';
-        } else $message = 'error';
+        if ($this->request->is(['post'])) {
+            if ($res) {
+                $message = 'saved';
+            } else $message = 'error';
+        }
         $this->set([
             'message' => $message,
             'element' => $element,
-            '_serialize' => ['message']
+            '_serialize' => ['element', 'message']
         ]);
     }
 
@@ -110,19 +133,18 @@ class ElementsController extends AppController
      */
     public function edit($id = null)
     {
-        $element = $this->Elements->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
+        $element = $this->Elements->get($id);
+        $this->request->allowMethod(['patch', 'post', 'put']);
             $element = $this->Elements->patchEntity($element, $this->request->getData());
             if ($this->Elements->save($element)) {
-                $this->Flash->success(__('The element has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The element could not be saved. Please, try again.'));
-        }
-        $this->set(compact('element'));
+                $message = 'saved';
+            } else $message = 'error';
+        
+        $this->set([
+            'message' => $message,
+            'element' => $element,
+            '_serialize' => ['element', 'message']
+        ]);
     }
 
     /**
@@ -145,7 +167,8 @@ class ElementsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    public function updateQuantity(){
+    public function updateQuantity()
+    {
         echo 'Hijo de puta';
     }
 }

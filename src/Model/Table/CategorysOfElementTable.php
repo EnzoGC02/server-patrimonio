@@ -34,7 +34,9 @@ class CategorysOfElementTable extends Table
         $this->setDisplayField('id_category');
         $this->setPrimaryKey('id_category');
 
-        $this->belongsTo('TypesBenefitsOfUse')->setForeignKey('id_benefit');
+        $this->belongsTo('TypesBenefitsOfUse',[
+            'foreignKey'=>'id_benefit',
+            'joinType' => 'INNER']);
     }
 
     /**

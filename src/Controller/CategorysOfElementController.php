@@ -18,7 +18,7 @@ class CategorysOfElementController extends AppController
      */
     public function index()
     {
-        $categorysOfElement = $this->paginate($this->CategorysOfElement->find());
+        $categorysOfElement = $this->CategorysOfElement->find('all')->contain('TypesBenefitsOfUse');
 
         $this->set([
             'categorys'=>$categorysOfElement,
